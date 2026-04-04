@@ -18,7 +18,7 @@
       "fixed_daily": {
         "power_contract": 0.305
       },
-      "source_url": "https://example.com/luzboa-mono"
+      "source_url": "https://www.luzboa.pt/tarifarios"
     },
     {
       "id": "luzboa-bi-base",
@@ -34,7 +34,7 @@
       "fixed_daily": {
         "power_contract": 0.305
       },
-      "source_url": "https://example.com/luzboa-bi"
+      "source_url": "https://www.luzboa.pt/tarifarios"
     },
     {
       "id": "goldenergy-mono-base",
@@ -49,7 +49,7 @@
       "fixed_daily": {
         "power_contract": 0.296
       },
-      "source_url": "https://example.com/goldenergy-mono"
+      "source_url": "https://www.goldenergy.pt/particulares/eletricidade"
     },
     {
       "id": "goldenergy-bi-base",
@@ -65,7 +65,7 @@
       "fixed_daily": {
         "power_contract": 0.296
       },
-      "source_url": "https://example.com/goldenergy-bi"
+      "source_url": "https://www.goldenergy.pt/particulares/eletricidade"
     },
     {
       "id": "endesa-mono-base",
@@ -80,7 +80,7 @@
       "fixed_daily": {
         "power_contract": 0.301
       },
-      "source_url": "https://example.com/endesa-mono"
+      "source_url": "https://www.endesa.com/pt/particulares/eletricidade/tarifas"
     },
     {
       "id": "endesa-bi-base",
@@ -96,7 +96,7 @@
       "fixed_daily": {
         "power_contract": 0.301
       },
-      "source_url": "https://example.com/endesa-bi"
+      "source_url": "https://www.endesa.com/pt/particulares/eletricidade/tarifas"
     }
   ]
 }
