@@ -69,6 +69,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Monitorizacao Eletricidade", lifespan=lifespan, root_path=ROOT_PATH)
 
+
+@app.middleware("http")
+async def ingress_root_path(request, call_next):
+    """Detecta X-Ingress-Path do HA Supervisor e ajusta root_path por request."""
+    ingress_path = request.headers.get("x-ingress-path", "")
+    if ingress_path and not request.scope.get("root_path"):
+        request.scope["root_path"] = ingress_path.rstrip("/")
+    return await call_next(request)
+
+
 # Montar ficheiros estaticos
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
