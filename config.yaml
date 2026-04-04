@@ -1,6 +1,6 @@
 name: "Monitorizacao Electricidade"
 description: "Dashboard de monitorizacao de electricidade com comparacao de tarifarios"
-version: "1.0.6"
+version: "1.0.7"
 slug: "monitorizacao-electricidade"
 arch:
   - aarch64
