@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-title">Electricidade</div>
+    <nav class="sidebar-nav">
+      {% for loc in locations %}
+      <a class="sidebar-item {% if loc.id == selected_location.id %}active{% endif %}"
+         href="{{ request.scope.get('root_path', '') }}/?local={{ loc.id }}"
+         hx-get="/local/{{ loc.id }}/dashboard"
+         hx-target="#dashboard-content"
+         hx-swap="innerHTML">
+        {{ loc.name }}
+      </a>
+      {% endfor %}
+    </nav>
+    <a class="sidebar-footer" href="{{ request.scope.get('root_path', '') }}/locais">+ Gerir locais</a>
+  </aside>
+  <main class="main-content">
+    <div id="dashboard-content">
+      {% include "partials/dashboard_content.html" %}
+    </div>
+  </main>
+</div>
+<script>
+  // Actualiza o item activo na sidebar apos navegacao HTMX
+  document.addEventListener('htmx:afterSettle', function(evt) {
+    if (evt.detail.target.id !== 'dashboard-content') return;
+    var url = new URL(window.location);
+    var localId = url.searchParams.get('local');
+    document.querySelectorAll('.sidebar-item').forEach(function(el) {
+      var href = el.getAttribute('href') || '';
+      el.classList.toggle('active', localId ? href.endsWith('local=' + localId) : false);
+    });
+  });
+</script>
+{% endblock %}

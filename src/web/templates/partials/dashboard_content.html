@@ -1,0 +1,20 @@
+{% include "partials/frescura_badge.html" %}
+{% include "partials/recomendacao_banner.html" %}
+<div class="grid-2">
+  {% include "partials/consumo_chart.html" %}
+  <div id="custo-section">
+    {% include "partials/custo_section.html" %}
+  </div>
+</div>
+{% include "partials/upload_xlsx.html" %}
+{% include "partials/upload_pdf.html" %}
+{% include "partials/ranking_table.html" %}
+
+{# Analise Multi-ano: carregada via HTMX ao clicar no botao #}
+<div style="margin-top:1.5rem;">
+  <button hx-get="/local/{{ selected_location.id }}/multi-ano"
+          hx-target="#multi-ano-section"
+          hx-swap="innerHTML"
+          class="btn">Analise Multi-ano</button>
+</div>
+<div id="multi-ano-section"></div>

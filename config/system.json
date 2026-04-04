@@ -1,0 +1,81 @@
+{
+  "locations": [
+    {
+      "id": "casa",
+      "name": "Casa",
+      "cpe": "PT0002000084968079SX",
+      "current_contract": {
+        "supplier": "Meo Energia",
+        "current_plan_contains": "Tarifa Variável",
+        "power_label": "10.35 kVA"
+      },
+      "pipeline": {
+        "raw_dir": "data/casa/raw/eredes",
+        "processed_csv_path": "data/casa/processed/consumo_mensal_atual.csv",
+        "analysis_json_path": "data/casa/processed/analise_tiagofelicia_atual.json",
+        "report_dir": "data/casa/reports",
+        "status_path": "state/casa/monthly_status.json",
+        "last_processed_tracker_path": "state/casa/last_processed_download.json",
+        "drop_partial_last_month": true,
+        "notify_on_completion": true,
+        "months_limit": null,
+        "local_tariffs_path": "config/tarifarios.json",
+        "local_contract_path": "config/fornecedor_atual.exemplo.json"
+      }
+    },
+    {
+      "id": "apartamento",
+      "name": "Apartamento",
+      "cpe": "PT0002000039822082NT",
+      "current_contract": {
+        "supplier": "Endesa",
+        "current_plan_contains": "",
+        "power_label": ""
+      },
+      "pipeline": {
+        "raw_dir": "data/apartamento/raw/eredes",
+        "processed_csv_path": "data/apartamento/processed/consumo_mensal_atual.csv",
+        "analysis_json_path": "data/apartamento/processed/analise_tiagofelicia_atual.json",
+        "report_dir": "data/apartamento/reports",
+        "status_path": "state/apartamento/monthly_status.json",
+        "last_processed_tracker_path": "state/apartamento/last_processed_download.json",
+        "drop_partial_last_month": true,
+        "notify_on_completion": true,
+        "months_limit": null,
+        "local_tariffs_path": "config/tarifarios.json",
+        "local_contract_path": "config/fornecedor_atual.exemplo.json"
+      }
+    }
+  ],
+  "eredes": {
+    "home_url": "https://balcaodigital.e-redes.pt/home",
+    "storage_state_path": "state/eredes_storage_state.json",
+    "bootstrap_context_path": "state/eredes_bootstrap_context.json",
+    "download_dir_base": "data/{location_id}/raw/eredes",
+    "download_url": "https://balcaodigital.e-redes.pt/consumptions/history",
+    "download_mode": "disabled",
+    "browser_app": "none",
+    "interactive_wait_seconds": 900,
+    "local_download_watch_dir": "/app/data/uploads",
+    "local_download_glob": "Consumos_*.xlsx",
+    "navigation_click_texts": [],
+    "download_button_candidates": [
+      "Exportar excel",
+      "Descarregar Excel",
+      "Download Excel",
+      "Exportar Excel",
+      "Excel"
+    ],
+    "download_timeout_seconds": 60
+  },
+  "schedule": {
+    "day": 1,
+    "hour": 9,
+    "minute": 0,
+    "timezone": "Europe/Lisbon"
+  },
+  "watcher": {
+    "enabled": false,
+    "watch_paths": []
+  }
+}
