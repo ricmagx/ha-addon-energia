@@ -35,14 +35,23 @@ from src.web.services.locais_service import update_tarifario
 router = APIRouter()
 
 
+def _get_ha_token() -> str | None:
+    """Le o token de acesso ao HA de /data/options.json."""
+    try:
+        with open("/data/options.json") as f:
+            return json.load(f).get("ha_token") or None
+    except Exception:
+        return os.environ.get("SUPERVISOR_TOKEN")
+
+
 def _get_ha_input_number(entity_id: str) -> float | None:
-    """Le o estado actual de um input_number do Home Assistant via Supervisor API."""
-    token = os.environ.get("SUPERVISOR_TOKEN")
+    """Le o estado actual de um input_number do Home Assistant."""
+    token = _get_ha_token()
     if not token:
         return None
     try:
         req = urllib.request.Request(
-            f"http://supervisor/core/api/states/{entity_id}",
+            f"http://homeassistant:8123/api/states/{entity_id}",
             headers={"Authorization": f"Bearer {token}"},
         )
         with urllib.request.urlopen(req, timeout=5) as resp:

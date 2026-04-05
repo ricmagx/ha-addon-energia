@@ -145,9 +145,18 @@ def update_tarifario(
     return get_local_by_id(local_id, engine)
 
 
+def _get_ha_token() -> str | None:
+    """Le o token de acesso ao HA de /data/options.json."""
+    try:
+        with open("/data/options.json") as f:
+            return json.load(f).get("ha_token") or None
+    except Exception:
+        return os.environ.get("SUPERVISOR_TOKEN")
+
+
 def _push_tarifario_to_ha(preco_vazio: float, preco_fora_vazio: float) -> None:
-    """Envia os precos para os input_number do Home Assistant via Supervisor API."""
-    token = os.environ.get("SUPERVISOR_TOKEN")
+    """Envia os precos para os input_number do Home Assistant."""
+    token = _get_ha_token()
     if not token:
         return
 
@@ -158,7 +167,7 @@ def _push_tarifario_to_ha(preco_vazio: float, preco_fora_vazio: float) -> None:
 def _ha_set_input_number(entity_id: str, value: float, token: str) -> None:
     payload = json.dumps({"entity_id": entity_id, "value": value}).encode()
     req = urllib.request.Request(
-        "http://supervisor/core/api/services/input_number/set_value",
+        "http://homeassistant:8123/api/services/input_number/set_value",
         data=payload,
         headers={
             "Authorization": f"Bearer {token}",
