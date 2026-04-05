@@ -29,9 +29,11 @@
   <div style="max-height:260px; overflow-y:auto;">
   <table style="font-size:0.85rem;">
     <thead>
-      <tr><th>Mes</th><th>Custo Real (EUR)</th><th></th></tr>
+      <tr><th>Mes</th><th>Custo Real (EUR)</th><th style="color:var(--muted,#6c757d); font-size:0.8rem;">Vazio €/kWh</th><th style="color:var(--muted,#6c757d); font-size:0.8rem;">Fora Vazio €/kWh</th><th></th></tr>
     </thead>
     <tbody>
+      {% set pv = selected_location.preco_vazio_kwh %}
+      {% set pfv = selected_location.preco_fora_vazio_kwh %}
       {% for ym in todos_meses %}
       <tr>
         <td>{{ ym }}</td>
@@ -51,6 +53,9 @@
             <span style="color: var(--muted,#6c757d); font-size:0.8rem;">sem consumo XLSX</span>
           {% endif %}
         </td>
+        <td style="color:var(--muted,#6c757d);">{{ '%.6f'|format(pv) if pv else '—' }}</td>
+        <td style="color:var(--muted,#6c757d);">{{ '%.6f'|format(pfv) if pfv else '—' }}</td>
+        <td></td>
       </tr>
       {% endfor %}
     </tbody>
