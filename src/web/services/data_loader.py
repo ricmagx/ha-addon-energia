@@ -52,6 +52,15 @@ def load_locations(config_path: Path, engine=None) -> list:
 
         # IDs ja presentes no config.json
         config_ids = {loc["id"] for loc in config_locations}
+        sqlite_by_id = {loc["id"]: loc for loc in sqlite_locais}
+
+        # Enriquecer locais do config.json com campos do SQLite (precos, etc.)
+        for loc in config_locations:
+            if loc["id"] in sqlite_by_id:
+                sq = sqlite_by_id[loc["id"]]
+                loc["preco_vazio_kwh"] = sq.get("preco_vazio_kwh")
+                loc["preco_fora_vazio_kwh"] = sq.get("preco_fora_vazio_kwh")
+                loc["current_supplier"] = sq.get("current_supplier") or loc.get("current_supplier")
 
         # Adicionar locais do SQLite que nao existem no config.json
         for loc in sqlite_locais:
@@ -60,12 +69,13 @@ def load_locations(config_path: Path, engine=None) -> list:
                     "id": loc["id"],
                     "name": loc["name"],
                     "cpe": loc.get("cpe", ""),
+                    "preco_vazio_kwh": loc.get("preco_vazio_kwh"),
+                    "preco_fora_vazio_kwh": loc.get("preco_fora_vazio_kwh"),
                     "current_contract": {
                         "supplier": loc.get("current_supplier", ""),
                         "current_plan_contains": loc.get("current_plan_contains", ""),
                         "power_label": loc.get("power_label", ""),
                     },
-                    # pipeline ausente — dashboard deve tratar gracefully
                 })
 
     return config_locations
