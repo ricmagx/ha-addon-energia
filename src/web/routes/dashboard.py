@@ -4,6 +4,8 @@ GET /          — pagina principal com selector de local
 GET /local/{local_id}/dashboard — fragmento HTMX para troca de local
 """
 import json
+import os
+import urllib.request
 from pathlib import Path
 
 from fastapi import APIRouter, Form, HTTPException, Request
@@ -31,6 +33,23 @@ from src.web.services.comparar_service import comparar_com_tarifarios
 from src.web.services.locais_service import update_tarifario
 
 router = APIRouter()
+
+
+def _get_ha_input_number(entity_id: str) -> float | None:
+    """Le o estado actual de um input_number do Home Assistant via Supervisor API."""
+    token = os.environ.get("SUPERVISOR_TOKEN")
+    if not token:
+        return None
+    try:
+        req = urllib.request.Request(
+            f"http://supervisor/core/api/states/{entity_id}",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read())
+            return float(data["state"])
+    except Exception:
+        return None
 
 
 def _extract_current_prices(detalhe: dict | None) -> dict | None:
@@ -220,6 +239,8 @@ async def homepage(request: Request, local: str | None = None):
     context = {
         "locations": locations,
         "selected_location": selected_location,
+        "ha_custo_vazio": _get_ha_input_number("input_number.custo_noite"),
+        "ha_custo_fora_vazio": _get_ha_input_number("input_number.custo_dia"),
         **location_data,
     }
     return templates.TemplateResponse(
@@ -246,6 +267,8 @@ async def local_dashboard(request: Request, local_id: str):
 
     context = {
         "selected_location": location,
+        "ha_custo_vazio": _get_ha_input_number("input_number.custo_noite"),
+        "ha_custo_fora_vazio": _get_ha_input_number("input_number.custo_dia"),
         **location_data,
     }
     response = templates.TemplateResponse(
@@ -352,7 +375,12 @@ async def guardar_tarifario_dashboard(
     return templates.TemplateResponse(
         request=request,
         name="partials/custo_section.html",
-        context={"selected_location": location, **location_data},
+        context={
+            "selected_location": location,
+            "ha_custo_vazio": _get_ha_input_number("input_number.custo_noite"),
+            "ha_custo_fora_vazio": _get_ha_input_number("input_number.custo_dia"),
+            **location_data,
+        },
     )
 
 
