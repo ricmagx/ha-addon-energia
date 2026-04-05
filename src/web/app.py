@@ -92,6 +92,44 @@ def health():
         return JSONResponse({"status": "error", "db": str(e)}, status_code=503)
 
 
+@app.get("/debug/ha")
+def debug_ha():
+    """Diagnostico de comunicacao com o Home Assistant."""
+    import urllib.request as ur
+
+    result = {}
+
+    # 1. Verificar token
+    supervisor_token = os.environ.get("SUPERVISOR_TOKEN", "")
+    result["SUPERVISOR_TOKEN"] = supervisor_token[:10] + "..." if supervisor_token else "AUSENTE"
+
+    try:
+        with open("/data/options.json") as f:
+            opts = json.load(f)
+        ha_token = opts.get("ha_token", "")
+        result["ha_token_options"] = ha_token[:10] + "..." if ha_token else "AUSENTE"
+    except Exception as e:
+        result["ha_token_options"] = f"ERRO: {e}"
+        ha_token = ""
+
+    token = ha_token or supervisor_token
+
+    # 2. Tentar ler input_number via homeassistant:8123
+    for url in [
+        "http://homeassistant:8123/api/states/input_number.custo_noite",
+        "http://supervisor/core/api/states/input_number.custo_noite",
+    ]:
+        try:
+            req = ur.Request(url, headers={"Authorization": f"Bearer {token}"})
+            with ur.urlopen(req, timeout=5) as resp:
+                data = json.loads(resp.read())
+                result[url] = {"state": data.get("state"), "ok": True}
+        except Exception as e:
+            result[url] = {"ok": False, "erro": str(e)}
+
+    return JSONResponse(result)
+
+
 # Registar routers
 from src.web.routes.dashboard import router as dashboard_router  # noqa: E402
 from src.web.routes.custos_reais import router as custos_router  # noqa: E402
