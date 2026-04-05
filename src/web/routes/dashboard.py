@@ -6,7 +6,7 @@ GET /local/{local_id}/dashboard — fragmento HTMX para troca de local
 import json
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
 from src.web.services.data_loader import (
@@ -28,6 +28,7 @@ from src.web.services.data_loader import (
 )
 from src.web.services.rankings import build_recommendation, calculate_annual_ranking
 from src.web.services.comparar_service import comparar_com_tarifarios
+from src.web.services.locais_service import update_tarifario
 
 router = APIRouter()
 
@@ -325,6 +326,33 @@ async def local_multi_ano(
         request=request,
         name="partials/multi_ano.html",
         context=context,
+    )
+
+
+@router.post("/local/{local_id}/tarifario", response_class=HTMLResponse)
+async def guardar_tarifario_dashboard(
+    request: Request,
+    local_id: str,
+    preco_vazio_kwh: float = Form(...),
+    preco_fora_vazio_kwh: float = Form(...),
+):
+    """Guarda os precos de tarifario e retorna o custo-section actualizado."""
+    config_path = request.app.state.config_path
+    templates = request.app.state.templates
+    engine = request.app.state.db_engine
+
+    update_tarifario(local_id, preco_vazio_kwh, preco_fora_vazio_kwh, engine)
+
+    locations = load_locations(config_path, engine=engine)
+    location = next((loc for loc in locations if loc["id"] == local_id), None)
+    if location is None:
+        return HTMLResponse(status_code=404, content="Local nao encontrado")
+
+    location_data = _load_location_data(request, location)
+    return templates.TemplateResponse(
+        request=request,
+        name="partials/custo_section.html",
+        context={"selected_location": location, **location_data},
     )
 
 
