@@ -157,7 +157,9 @@ def _get_ha_token() -> str | None:
 def _push_tarifario_to_ha(preco_vazio: float, preco_fora_vazio: float) -> None:
     """Envia os precos para os input_number do Home Assistant."""
     token = _get_ha_token()
+    print(f"[HA] token={'OK' if token else 'AUSENTE'}", flush=True)
     if not token:
+        print("[HA] Sem token — push ignorado", flush=True)
         return
 
     _ha_set_input_number("input_number.custo_noite", preco_vazio, token)
@@ -165,17 +167,23 @@ def _push_tarifario_to_ha(preco_vazio: float, preco_fora_vazio: float) -> None:
 
 
 def _ha_set_input_number(entity_id: str, value: float, token: str) -> None:
-    payload = json.dumps({"entity_id": entity_id, "value": value}).encode()
-    req = urllib.request.Request(
+    for url in [
         "http://homeassistant:8123/api/services/input_number/set_value",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    try:
-        urllib.request.urlopen(req, timeout=5)
-    except Exception:
-        pass  # HA indisponivel nao deve bloquear o guardado
+        "http://supervisor/core/api/services/input_number/set_value",
+    ]:
+        payload = json.dumps({"entity_id": entity_id, "value": value}).encode()
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                print(f"[HA] {entity_id} -> {value} via {url}: {resp.status}", flush=True)
+                return
+        except Exception as e:
+            print(f"[HA] ERRO {url}: {e}", flush=True)
